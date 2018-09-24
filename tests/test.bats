@@ -40,5 +40,5 @@ export CACHET_VERSION=${CACHET_VERSION:-2.3.15}
 }
 
 @test "[$TEST_FILE] Cleanup test containers and orphaned volumes" {
-  #command docker-compose down --volumes
+  command docker-compose down --volumes
 }
