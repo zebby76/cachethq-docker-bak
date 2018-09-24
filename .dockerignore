@@ -1,0 +1,6 @@
+.git
+box-web/
+box-php/
+box-monitor/
+box-qeue-worker/
+tests/

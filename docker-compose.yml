@@ -1,0 +1,103 @@
+version: "2"
+
+services:
+  pgsql:
+    image: docker.io/postgres:9.5.4
+    container_name: cachet-pgsql
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=superuser
+      - POSTGRES_DB=cachet
+    networks:
+      - default
+    mem_limit: 512m
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+
+  php:
+    image: docker.io/zebby76/cachet-php:latest
+    container_name: cachet-php
+    environment:
+      - CACHET_APP_KEY=base64:JNnQ+yBddv941K8fxRoQGX64h+nqQSxx7Vm2qC8Xfn0=
+      - CACHET_DB_DRIVER=pgsql
+      - CACHET_DB_HOSTNAME=pgsql
+      - CACHET_DB_PORT=5432
+      - CACHET_DB_PASSWORD=password
+      - CACHET_DB_USERNAME=superuser
+      - CACHET_DB_NAME=cachet
+      - DEBUG=false
+      - MAILER_PORT=25
+      - MAILER_TRANSPORT=smtp
+      - MAILER_URL=
+      - PHP_FPM_MAX_CHILDREN=4
+      - PHP_FPM_REQUEST_MAX_MEMORY_IN_MEGABYTES=128
+    depends_on:
+      - pgsql
+    command: ["wait-for-it", "pgsql:5432", "--", "run-php"]
+    networks:
+      - default
+    build:
+      context: .
+      dockerfile: box-php/Dockerfile
+      args:
+        CACHET_VERSION_ARG: ${CACHET_VERSION}
+    mem_limit: 512m
+
+  web:
+    image: docker.io/zebby76/cachet-web:latest
+    container_name: cachet-web
+    ports:
+      - 8080:8080
+    depends_on:
+      - php
+    volumes_from:
+      - php
+    networks:
+      - default
+    build:
+      context: .
+      dockerfile: box-web/Dockerfile
+      args:
+        CACHET_VERSION_ARG: ${CACHET_VERSION}
+    mem_limit: 128m
+
+  queue_worker:
+    image: docker.io/zebby76/cachet-queue-worker:latest
+    container_name: cachet-queue-worker
+    environment:
+      - CACHET_APP_KEY=base64:JNnQ+yBddv941K8fxRoQGX64h+nqQSxx7Vm2qC8Xfn0=
+      - CACHET_DB_DRIVER=pgsql
+      - CACHET_DB_HOSTNAME=pgsql
+      - CACHET_DB_PORT=5432
+      - CACHET_DB_PASSWORD=password
+      - CACHET_DB_USERNAME=superuser
+      - CACHET_DB_NAME=cachet
+      - DEBUG=false
+      - MAILER_PORT=25
+      - MAILER_TRANSPORT=smtp
+      - MAILER_URL=
+    depends_on:
+      - pgsql
+      - php
+    volumes_from:
+      - php
+    command: ["wait-for-it", "pgsql:5432", "--", "run-queue-worker"]
+    networks:
+      - default
+    build:
+      context: .
+      dockerfile: box-queue-worker/Dockerfile
+      args:
+        CACHET_VERSION_ARG: ${CACHET_VERSION}
+    mem_limit: 128m
+
+volumes:
+  postgresql_data:
+    driver: local
+  cachethq_data:
+    driver: local
+
+networks:
+  default:
+    external:
+      name: docker_default

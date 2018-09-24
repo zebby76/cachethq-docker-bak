@@ -1,0 +1,102 @@
+#!/bin/bash
+
+[[ "${DEBUG}" == true ]] && set -x
+
+echo "This script check memory settings against QoS."
+echo "Initial settings : "
+echo "pm.max_children=${PHP_FPM_MAX_CHILDREN}"
+echo "php_value[memory_limit]=${PHP_FPM_REQUEST_MAX_MEMORY_IN_MEGABYTES}"
+echo "Ratio=${CONTAINER_HEAP_PERCENT}"
+
+. /usr/local/bin/dynamic_resources
+CALCULATED_CLIENTS=`get_max_clients`
+if [ -n "$CALCULATED_CLIENTS" ]; then
+  PHP_FPM_MAX_CHILDREN=$CALCULATED_CLIENTS
+  if [ $CALCULATED_CLIENTS -lt 1 ]; then
+    exit 1
+  fi
+fi
+
+echo "After calculation : "
+echo "pm.max_children=${PHP_FPM_MAX_CHILDREN}"
+echo "php_value[memory_limit]=${PHP_FPM_REQUEST_MAX_MEMORY_IN_MEGABYTES}"
+echo "Ratio=${CONTAINER_HEAP_PERCENT}"
+
+sed -i 's/^expose_php.*/expose_php = Off/g' /etc/php7/php.ini
+
+sed -i 's/^error_log.*/error_log = \/var\/log\/php-fpm\/fpm-error.log/g' /etc/php7/php-fpm.conf
+sed -i 's/^;access.log.*/access.log = \/var\/log\/php-fpm\/fpm-access.log/g' /etc/php7/php-fpm.conf
+sed -i 's/^user.*/user = default/g' /etc/php7/php-fpm.d/www.conf
+sed -i 's/^group.*/group = root/g' /etc/php7/php-fpm.d/www.conf
+sed -i 's/^listen.*/listen = \/var\/run\/php-fpm\/php-fpm.sock/g' /etc/php7/php-fpm.d/www.conf
+sed -i 's/^;listen.mode.*/listen.mode = 0777/g' /etc/php7/php-fpm.d/www.conf
+sed -i 's/^;listen.allowed_clients.*/listen.allowed_clients = 127.0.0.1/g' /etc/php7/php-fpm.d/www.conf
+sed -i 's/^;php_value\[session.save_handler\].*/php_value\[session.save_handler\] = files/g' /etc/php7/php-fpm.d/www.conf
+sed -i 's/^;php_value\[session.save_path\].*/php_value\[session.save_path\] = \/var\/php\/session/g' /etc/php7/php-fpm.d/www.conf
+sed -i 's/^;php_value\[soap.wsdl_cache_dir\].*/php_value\[soap.wsdl_cache_dir\] = \/var\/php\/wsdlcache/g' /etc/php7/php-fpm.d/www.conf
+
+sed -i "s/^php_admin_value\[memory_limit\].*/php_admin_value\[memory_limit\] = ${PHP_FPM_REQUEST_MAX_MEMORY_IN_MEGABYTES}M/g" /etc/php7/php-fpm.d/www.conf
+sed -i "s/^pm.max_children.*/pm.max_children = ${PHP_FPM_MAX_CHILDREN}/g" /etc/php7/php-fpm.d/www.conf
+
+THIS=`readlink -f "${BASH_SOURCE[0]}"`
+
+DIR=`dirname "${THIS}"`
+
+source "$DIR/setup_postgres_db"
+
+if [[ "${CACHET_APP_KEY}" == null ]]; then
+  keygen="$(php artisan key:generate)"
+  echo "${keygen}"
+  appkey=$(echo ${keygen} | grep -oP '(?<=\[).*(?=\])')
+  echo "Please set the 'CACHET_APP_KEY=${appkey}' environment variable at runtime or in docker-compose.yml and re-launch"
+  exit 0
+fi
+
+echo "Check Database connection ..."
+cachetDatabaseConnect ${CACHET_DB_USERNAME} ${CACHET_DB_HOSTNAME} ${CACHET_DB_PORT} ${CACHET_DB_NAME}
+if [ $? -eq 0 ]; then
+  cachetTablesExist ${CACHET_DB_USERNAME} ${CACHET_DB_PASSWORD} ${CACHET_DB_HOSTNAME} ${CACHET_DB_PORT} ${CACHET_DB_NAME}
+  if  [ $? -eq 0 ]; then
+    echo "Initializing Cachet database ..."
+    php artisan app:install
+  else
+    echo "Cachet database already initalized."
+  fi
+else
+  echo "No database connection available ! Exit !"
+  exit 1
+fi
+
+echo "Create folders in Cachet storage if not exists (e.g. volume mount) ..."
+if [ ! -d /opt/src/cachet/storage/app ]; then
+  echo "Create /opt/src/cachet/storage/app folder."
+  mkdir -p /opt/src/cachet/storage/app
+fi
+if [ ! -d /opt/src/cachet/storage/framework ]; then
+  echo "Create /opt/src/cachet/storage/framework folder."
+  mkdir -p /opt/src/cachet/storage/framework
+fi
+if [ ! -d /opt/src/cachet/storage/framework/cache ]; then
+  echo "Create /opt/src/cachet/storage/framework/cache folder."
+  mkdir -p /opt/src/cachet/storage/framework/cache
+fi
+if [ ! -d /opt/src/cachet/storage/framework/sessions ]; then
+  echo "Create /opt/src/cachet/storage/framework/sessions folder."
+  mkdir -p /opt/src/cachet/storage/framework/sessions
+fi
+if [ ! -d /opt/src/cachet/storage/framework/views ]; then
+  echo "Create /opt/src/cachet/storage/framework/views folder."
+  mkdir -p /opt/src/cachet/storage/framework/views
+fi
+if [ ! -d /opt/src/cachet/storage/logs ]; then
+  echo "Create /opt/src/cachet/storage/logs folder."
+  mkdir -p /opt/src/cachet/storage/logs
+fi
+
+echo "Configure Cachet cache ..."
+php artisan config:cache
+
+echo "Success: Cachet fully configured"
+
+echo "Starting Cachet! ..."
+/usr/sbin/php-fpm7 -F -R

@@ -1,0 +1,70 @@
+#!/bin/bash
+
+[[ "${DEBUG}" == true ]] && set -x
+
+# Full path of this script
+THIS=`readlink -f "${BASH_SOURCE[0]}"`
+
+# This directory path
+DIR=`dirname "${THIS}"`
+
+source "$DIR/setup_postgres_db"
+
+echo "Check Database connection ..."
+cachetDatabaseConnect ${CACHET_DB_USERNAME} ${CACHET_DB_HOSTNAME} ${CACHET_DB_PORT} ${CACHET_DB_NAME}
+if [ $? -eq 0 ]; then
+  max_attempts=10
+  sleep_time=6
+  attempt=1
+  result=1
+  while [ $attempt -le $max_attempts ]; do
+    cachetTablesExist ${CACHET_DB_USERNAME} ${CACHET_DB_PASSWORD} ${CACHET_DB_HOSTNAME} ${CACHET_DB_PORT} ${CACHET_DB_NAME}
+    if  [ $? -eq 0 ]; then
+      if [ $attempt -eq $max_attempts ]; then
+        echo "Cachet database not yet initalized ... Exit !"
+        exit 1
+      else
+        echo "Cachet database not yet initalized. ... Retry $attempt"
+        attempt=$(( $attempt + 1 ))
+        sleep $sleep_time
+      fi
+    else
+      echo "Cachet database initalized."
+      break
+    fi
+
+  done
+else
+  echo "No database connection available ! Exit !"
+  exit 1
+fi
+
+echo "Create folders in Cachet storage if not exists (e.g. volume mount) ..."
+if [ ! -d /opt/src/cachet/storage/app ]; then
+  echo "Create /opt/src/cachet/storage/app folder."
+  mkdir -p /opt/src/cachet/storage/app
+fi
+if [ ! -d /opt/src/cachet/storage/framework ]; then
+  echo "Create /opt/src/cachet/storage/framework folder."
+  mkdir -p /opt/src/cachet/storage/framework
+fi
+if [ ! -d /opt/src/cachet/storage/framework/cache ]; then
+  echo "Create /opt/src/cachet/storage/framework/cache folder."
+  mkdir -p /opt/src/cachet/storage/framework/cache
+fi
+if [ ! -d /opt/src/cachet/storage/framework/sessions ]; then
+  echo "Create /opt/src/cachet/storage/framework/sessions folder."
+  mkdir -p /opt/src/cachet/storage/framework/sessions
+fi
+if [ ! -d /opt/src/cachet/storage/framework/views ]; then
+  echo "Create /opt/src/cachet/storage/framework/views folder."
+  mkdir -p /opt/src/cachet/storage/framework/views
+fi
+if [ ! -d /opt/src/cachet/storage/logs ]; then
+  echo "Create /opt/src/cachet/storage/logs folder."
+  mkdir -p /opt/src/cachet/storage/logs
+fi
+
+echo "Starting Cachet Queue Worker ! ..."
+
+php artisan queue:work -vvv --daemon --delay=2 --sleep=1 --tries=3 --no-interaction

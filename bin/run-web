@@ -1,0 +1,5 @@
+#!/bin/bash
+
+sed -i 's/^[ \t]*listen.*/listen 8080;/gI' /etc/nginx/sites-enabled/www.conf
+
+exec /usr/sbin/nginx

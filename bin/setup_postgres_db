@@ -1,0 +1,58 @@
+#!/bin/bash
+function cachetDatabaseConnect() {
+  local max_attempts=10
+  local sleep_time=10
+  local attempt=1
+  local result=1
+
+  local username="$1"
+  local hostname="$2"
+  local port="$3"
+  local db_name="$4"
+
+  local _RES=""
+
+  while [ $attempt -le $max_attempts ]; do
+
+    _RES=$(/usr/bin/pg_isready -h ${hostname} -p ${port} -U ${username} -d ${db_name} -t 1)
+    _STATUS=$?
+
+    if [ ${_STATUS} -eq 0 ]; then
+      echo "Connecting to database succesfull."
+      _RES=${_STATUS}
+      break
+    else
+      echo "Cannot connect to Database.  ${_RES}.  Retry ...."
+      _RES=${_STATUS}
+    fi
+
+    attempt=$(( $attempt + 1 ))
+    sleep $sleep_time
+
+  done
+
+  return ${_RES}
+
+}
+
+function cachetTablesExist() {
+  local username="$1"
+  local password="$2"
+  local hostname="$3"
+  local port="$4"
+  local db_name="$5"
+
+  local _RES=""
+
+  PGPASSFILE=/tmp/pgpasswd$$
+  echo "${hostname}:${port}:${db_name}:${username}:${password}" > $PGPASSFILE
+  chmod 600 $PGPASSFILE
+  export PGPASSFILE
+
+  _RES=$(psql -h ${hostname} -p ${port} -U ${username} ${db_name} -t -w -c "select count(*) from pg_tables where schemaname='public';")
+
+  rm $PGPASSFILE
+
+  return ${_RES}
+
+}
