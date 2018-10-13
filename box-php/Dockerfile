@@ -1,10 +1,23 @@
 FROM docker.io/alpine:3.7
 
-ARG CACHET_VERSION_ARG=""
+# Build-time metadata as defined at http://label-schema.org
+ARG VERSION_ARG=""
+ARG BUILD_DATE_ARG=""
+ARG VCS_REF_ARG=""
+
+LABEL org.label-schema.build-date=$BUILD_DATE_ARG \
+      org.label-schema.name="CachetHQ PHP-FPM" \
+      org.label-schema.description="CachetHQ PHP-FPM 7 Processor" \
+      org.label-schema.url="" \
+      org.label-schema.vcs-ref=$VCS_REF_ARG \
+      org.label-schema.vcs-url="https://github.com/zebby76/cachethq-docker" \
+      org.label-schema.vendor="sebastian.molle@gmail.com" \
+      org.label-schema.version=$VERSION_ARG \
+      org.label-schema.schema-version="1.0"
 
 USER root
 
-ENV CACHET_VERSION=${CACHET_VERSION_ARG:-2.3.15}                                                                                   \
+ENV CACHET_VERSION=${VERSION_ARG:-2.3.15}                                                                                          \
     CACHET_DOWNLOAD_URL="https://github.com/cachethq/Cachet/archive"                                                               \
     COMPOSER_INSTALLER_SHA384SUM=""                                                                                                \
     MAIL_SMTP_SERVER=""                                                                                                            \
@@ -14,14 +27,6 @@ ENV CACHET_VERSION=${CACHET_VERSION_ARG:-2.3.15}                                
     CONTAINER_HEAP_PERCENT=${CONTAINER_HEAP_PERCENT:-0.80}                                                                         \
     HOME=/home/default                                                                                                             \
     PATH=/opt/bin:/usr/local/bin:/usr/bin:$PATH
-
-LABEL MAINTAINER="sebastian.molle@gmail.com"                                                                                       \
-      application.name="CachetHQ"                                                                                                  \
-      application.component="php-fpm"                                                                                              \
-      io.k8s.description="Platform for running PHP-FPM 7 Processor"                                                                \
-      io.k8s.display-name="PHP7-FPM"                                                                                               \
-      io.openshift.tags="php7-fpm"                                                                                                 \
-      application.version=${CACHET_VERSION}
 
 WORKDIR /opt/src/cachet
 

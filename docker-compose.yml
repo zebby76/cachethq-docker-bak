@@ -40,7 +40,9 @@ services:
       context: .
       dockerfile: box-php/Dockerfile
       args:
-        CACHET_VERSION_ARG: ${CACHET_VERSION}
+        VERSION_ARG: ${CACHET_VERSION}
+        BUILD_DATE_ARG: ${BUILD_DATE}
+        VCS_REF_ARG: ${VCS_REF}
     mem_limit: 512m
 
   web:
@@ -58,7 +60,9 @@ services:
       context: .
       dockerfile: box-web/Dockerfile
       args:
-        CACHET_VERSION_ARG: ${CACHET_VERSION}
+        VERSION_ARG: ${CACHET_VERSION}
+        BUILD_DATE_ARG: ${BUILD_DATE}
+        VCS_REF_ARG: ${VCS_REF}
     mem_limit: 128m
 
   queue_worker:
@@ -88,7 +92,9 @@ services:
       context: .
       dockerfile: box-queue-worker/Dockerfile
       args:
-        CACHET_VERSION_ARG: ${CACHET_VERSION}
+        VERSION_ARG: ${CACHET_VERSION}
+        BUILD_DATE_ARG: ${BUILD_DATE}
+        VCS_REF_ARG: ${VCS_REF}
     mem_limit: 128m
 
 volumes:

@@ -41,3 +41,5 @@ env:
   global:
     - DOCKER_COMPOSE_VERSION=1.22.0
     - CACHETHQ_VERSION=2.3.15
+    - VCS_REF=${TRAVIS_COMMIT}
+    - BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"`
