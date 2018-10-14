@@ -1,0 +1,23 @@
+#!/bin/sh -e
+
+cat <<EOF
+
+docker run -it --rm -v <CompareFile1>:/opt/list/1.yml                   \
+                    -v <CompareFile2>:/opt/list/2.yml                   \
+                    -e IMAGE_NAME=<ImageName>                           \
+                    -e IMAGE_VERSION=<ImageVersion>                     \
+                    [ -e LIST_1=<LIST_1> ]                              \
+                    [ -e LIST_2=<LIST_2> ]                              \
+       zebby76/markdown-helper:latest getMarkdownChangelog
+
+docker run -it --rm -v <ApkListInputFile>:/opt/list/list.yml            \
+                    [ -e PACKAGES_LIST=<PACKAGES_LIST> ]                \
+       zebby76/markdown-helper:latest getMarkdownPackagesTable
+
+docker run -it --rm -v <MarkdownFile>:/opt/markdown/input.md            \
+                    [ -e MARKDOWN_CONTENT=<MARKDOWN_CONTENT> ]          \
+       zebby76/markdown-helper:latest getHtmlFromMarkdown
+
+EOF
+
+exit 0

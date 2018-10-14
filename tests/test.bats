@@ -4,7 +4,12 @@ load docker_helpers
 load "lib/batslib"
 load "lib/output"
 
+DEFAULT_VCS_REF=`git rev-parse --short HEAD`
+DEFAULT_BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"`
+
 export CACHET_VERSION=${CACHET_VERSION:-2.3.15}
+export VCS_REF=${VCS_REF:-$DEFAULT_VCS_REF}
+export BUILD_DATE=${VCS_REF:-$DEFAULT_BUILD_DATE}
 
 @test "[$TEST_FILE] Starting CachetHQ Docker images build" {
   command docker-compose build --no-cache php web queue_worker
@@ -37,6 +42,42 @@ export CACHET_VERSION=${CACHET_VERSION:-2.3.15}
 
 @test "[$TEST_FILE] Check for CachetHQ Webserver setup request in container log" {
   docker_wait_for_log cachet-web 15 "\"GET /setup HTTP/1.1\" .* .* \"-\" \"curl.*\" \"-\""
+}
+
+@test "[$TEST_FILE] Build Cachet Monitoring Script Docker image" {
+  docker_build ${BUILD_DATE} ${VCS_REF} ${CACHET_VERSION} docker.io/zebby76/cachet-monitoring-scripts latest box-monitoring-scripts/.
+}
+
+@test "[$TEST_FILE] Check for CachetHQ Monitoring-Scripts non existing command" {
+  run docker run --rm docker.io/zebby76/cachet-monitoring-scripts:latest not-exist
+  assert_equal $status 127
+}
+
+@test "[$TEST_FILE] Check for CachetHQ Monitoring-Scripts usage command" {
+  run docker run --rm docker.io/zebby76/cachet-monitoring-scripts:latest usage
+  assert_equal $status 0
+}
+
+@test "[$TEST_FILE] Check for CachetHQ Monitoring-Scripts apk-list command" {
+  run docker run --rm docker.io/zebby76/cachet-monitoring-scripts:latest apk-list
+  assert_equal $status 0
+}
+
+@test "[$TEST_FILE] Check for CachetHQ Monitoring-Scripts pip-list command" {
+  run docker run --rm docker.io/zebby76/cachet-monitoring-scripts:latest pip-list
+  assert_equal $status 0
+}
+
+@test "[$TEST_FILE] Check for CachetHQ Monitoring-Scripts foglightXml2cachethq command" {
+  skip
+  run docker run --rm docker.io/zebby76/cachet-monitoring-scripts:latest foglightXml2cachethq
+  assert_equal $status 0
+}
+
+@test "[$TEST_FILE] Check for CachetHQ Monitoring-Scripts cachethqMonitor command" {
+  skip
+  run docker run --rm docker.io/zebby76/cachet-monitoring-scripts:latest cachethqMonitor
+  assert_equal $status 0
 }
 
 @test "[$TEST_FILE] Cleanup test containers and orphaned volumes" {

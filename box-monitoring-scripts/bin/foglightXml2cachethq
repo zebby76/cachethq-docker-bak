@@ -1,0 +1,13 @@
+#!/bin/bash
+
+cd /opt/src
+
+export CACHETHQ_ENDPOINT=${CACHETHQ_ENDPOINT:-default-image}
+export CACHETHQ_API_TOKEN=${CACHETHQ_API_TOKEN:-default-version}
+export CACHETHQ_GROUP_NAME=${CACHETHQ_GROUP_NAME:-default-type}
+export NAME_FILTER=${NAME_FILTER:-default-type}
+
+python3 foglightXml2cachethq.py -a ${CACHETHQ_ENDPOINT} \
+                                -t ${CACHETHQ_API_TOKEN} \
+                                -g ${CACHETHQ_GROUP_NAME} \
+                                -f ${NAME_FILTER}

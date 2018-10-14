@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="smalsjunitmetrics.xsd">
+	<export>
+		<SMALS_JUNIT_ApplicationInstance>
+			<component_name>Base Service ClcEhealth v1.0 - accehealthcluster (Acceptation)</component_name>
+			<component_type>SMALS_JUNIT_ApplicationInstance</component_type>
+			<component_host>lpehtmon002a-bkp.ehealth.mgmt.be</component_host>
+			<fgl_UID>cfcf2768-249b-446e-a541-f68637c88f5b</fgl_UID>
+			<metric_instance> </metric_instance>
+			<metric_group>jUnit</metric_group>
+			<effectiveStartDate>2018-05-23T06:39:23.774Z</effectiveStartDate>
+			<lastUpdated>2018-09-18T09:21:35.987Z</lastUpdated>
+		</SMALS_JUNIT_ApplicationInstance>
+		<SMALS_JUNIT_ApplicationInstance>
+			<component_name>Base Service ClcEhealth v1.0 - prdehealthcluster (Production)</component_name>
+			<component_type>SMALS_JUNIT_ApplicationInstance</component_type>
+			<component_host>lpehtmon002b.ehealth.fgov.be</component_host>
+			<fgl_UID>cfaf9765-be52-4142-8001-70ea55e538b8</fgl_UID>
+			<metric_instance> </metric_instance>
+			<metric_group>jUnit</metric_group>
+			<effectiveStartDate>2016-04-14T13:58:17.383Z</effectiveStartDate>
+			<lastUpdated>2018-09-18T11:37:01.258Z</lastUpdated>
+			<availability metricID="/observations/cfaf9765-be52-4142-8001-70ea55e538b8/availability" startTime="2018-09-18T09:46:57.628Z" endTime="2018-09-18T11:36:56.655Z" avg="100.0" count="11" max="100.0" min="100.0" sqrSum="110000.0" stdDev="0.0" sum="1100.0" sampledPeriod="6600000" unit="percent" >
+				<sample startTime="2018-09-18T09:46:57.628Z" endTime="2018-09-18T09:56:57.628Z" avg="100.0" count="1" max="100.0" min="100.0" sqrSum="10000.0" stdDev="0.0" sum="100.0" sampledPeriod="600000" unit="percent" />
+				<sample startTime="2018-09-18T09:56:58.653Z" endTime="2018-09-18T10:06:58.653Z" avg="100.0" count="1" max="100.0" min="100.0" sqrSum="10000.0" stdDev="0.0" sum="100.0" sampledPeriod="600000" unit="percent" />
+				<sample startTime="2018-09-18T10:06:54.624Z" endTime="2018-09-18T10:16:54.624Z" avg="100.0" count="1" max="100.0" min="100.0" sqrSum="10000.0" stdDev="0.0" sum="100.0" sampledPeriod="600000" unit="percent" />
+				<sample startTime="2018-09-18T10:16:54.76Z" endTime="2018-09-18T10:26:54.76Z" avg="100.0" count="1" max="100.0" min="100.0" sqrSum="10000.0" stdDev="0.0" sum="100.0" sampledPeriod="600000" unit="percent" />
+				<sample startTime="2018-09-18T10:26:58.656Z" endTime="2018-09-18T10:36:58.656Z" avg="100.0" count="1" max="100.0" min="100.0" sqrSum="10000.0" stdDev="0.0" sum="100.0" sampledPeriod="600000" unit="percent" />
+				<sample startTime="2018-09-18T10:36:56.62Z" endTime="2018-09-18T10:46:56.62Z" avg="100.0" count="1" max="100.0" min="100.0" sqrSum="10000.0" stdDev="0.0" sum="100.0" sampledPeriod="600000" unit="percent" />
+				<sample startTime="2018-09-18T10:46:58.628Z" endTime="2018-09-18T10:56:58.628Z" avg="100.0" count="1" max="100.0" min="100.0" sqrSum="10000.0" stdDev="0.0" sum="100.0" sampledPeriod="600000" unit="percent" />
+				<sample startTime="2018-09-18T10:56:58.627Z" endTime="2018-09-18T11:06:58.627Z" avg="100.0" count="1" max="100.0" min="100.0" sqrSum="10000.0" stdDev="0.0" sum="100.0" sampledPeriod="600000" unit="percent" />
+				<sample startTime="2018-09-18T11:06:55.624Z" endTime="2018-09-18T11:16:55.624Z" avg="100.0" count="1" max="100.0" min="100.0" sqrSum="10000.0" stdDev="0.0" sum="100.0" sampledPeriod="600000" unit="percent" />
+				<sample startTime="2018-09-18T11:16:54.64Z" endTime="2018-09-18T11:26:54.64Z" avg="100.0" count="1" max="100.0" min="100.0" sqrSum="10000.0" stdDev="0.0" sum="100.0" sampledPeriod="600000" unit="percent" />
+				<sample startTime="2018-09-18T11:26:56.655Z" endTime="2018-09-18T11:36:56.655Z" avg="100.0" count="1" max="100.0" min="100.0" sqrSum="10000.0" stdDev="0.0" sum="100.0" sampledPeriod="600000" unit="percent" />
+			</availability>
+		</SMALS_JUNIT_ApplicationInstance>
+	</export>
+</data>

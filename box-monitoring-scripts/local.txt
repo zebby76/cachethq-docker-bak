@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# Todo: Curl foglight to retrieve smalsxmlmetrics.xml file next to this script
+
+python3 foglight2cachethq.py -a 'http://poc-foglight2cachet.test.paas.services.gcloud.belgium.be/api/v1' \
+                             -t 'jAxiWvhck7Ky5TlivYsi' \
+                             -g 'SEM' \
+                             -f 'Production'
+
+docker build --no-cache --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+                        --build-arg VCS_REF=`git rev-parse --short HEAD` \
+                        --build-arg VERSION='1.0.0' \
+                        -t docker.io/zebby76/foglight2cachet:latest .
+
+docker run -it --rm -e CACHETHQ_ENDPOINT="http://poc-foglight2cachet.test.paas.services.gcloud.belgium.be/api/v1" -e CACHETHQ_API_TOKEN="jAxiWvhck7Ky5TlivYsi" -e CACHETHQ_GROUP_NAME="TEST" -e NAME_FILTER="Production" -v c:\dev\prj\PUBLIC-CLOUD\import-foglight-to-cachethq\src\files\smalsxmlmetrics.xml:/opt/src/files/smalsxmlmetrics.xml docker.io/zebby76/foglight2cachet:latest foglight2cachethq
+
+docker run -it --rm -e CACHETHQ_ENDPOINT="http://poc-foglight2cachet.test.paas.services.gcloud.belgium.be/api/v1" \
+                    -e CACHETHQ_API_TOKEN="jAxiWvhck7Ky5TlivYsi" \
+                    -e CACHETHQ_GROUP_NAME="TEST" \
+                    -e NAME_FILTER="Production" \
+                    docker.io/zebby76/foglight2cachet:latest foglight2cachethq
+
+docker run -it --rm -e CACHETHQ_ENDPOINT="http://poc-foglight2cachet.test.paas.services.gcloud.belgium.be/api/v1" \
+                    -e CACHETHQ_API_TOKEN="jAxiWvhck7Ky5TlivYsi" \
+                    -e CACHETHQ_GROUP_NAME="SEM" \
+                    -e NAME_FILTER="Production" \
+                    container-internet.gcloud.belgium.be/zebby76/foglight2cachet:latest foglight2cachethq
+
+docker run -it --rm -e CACHETHQ_ENDPOINT="http://poc-foglight2cachet.test.paas.services.gcloud.belgium.be/api/v1" \
+                    -e CACHETHQ_API_TOKEN="jAxiWvhck7Ky5TlivYsi" \
+                    -e CACHETHQ_GROUP_NAME="TEST" \
+                    -e NAME_FILTER="Production" \
+                    -v /c/dev/prj/PUBLIC-CLOUD/import-foglight-to-cachethq/src/files:/opt/src/files \
+                    docker.io/zebby76/foglight2cachet:latest foglight2cachethq
+
+
+export https_proxy=proxyapp.ehealth.fgov.be:8080

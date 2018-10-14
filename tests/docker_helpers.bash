@@ -65,3 +65,25 @@ function docker_tcp {
 		rancher/socat-docker
 	docker run --label bats-type="docker" --link "$container_name:docker" docker:1.10 version
 }
+
+# Create a docker image
+#
+# $1 BUILD_DATE
+# $2 VCS_REF
+# $3 VERSION
+# $4 IMAGE_NAME
+# $5 IMAGE_TAG
+# $6 BUILD_CONTEXT
+function docker_build {
+	local BUILD_DATE="$1"
+	local VCS_REF="$2"
+	local VERSION="$3"
+	local IMAGE_NAME="$4"
+	local IMAGE_TAG="$5"
+	local BUILD_CONTEXT="$6"
+	docker build --no-cache --build-arg BUILD_DATE=${BUILD_DATE} \
+	             --build-arg VCS_REF=${VCS_REF} \
+							 --build-arg VERSION=${VERSION} \
+							 -t ${IMAGE_NAME}:${IMAGE_TAG} ${BUILD_CONTEXT}
+
+}
