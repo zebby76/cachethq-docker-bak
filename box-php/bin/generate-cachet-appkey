@@ -1,3 +1,0 @@
-#!/bin/bash
-
-echo $(php artisan key:generate | sed -e 's/.*\[\(.*\)\].*/\1/g')

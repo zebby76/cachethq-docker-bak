@@ -44,7 +44,7 @@ COPY bin/func_fill_in_template_file_using_env /usr/local/bin/func_fill_in_templa
 COPY bin/run-queue-worker /usr/local/bin/run-queue-worker
 COPY bin/setup_postgres_db /usr/local/bin/setup_postgres_db
 COPY bin/wait-for-it /usr/local/bin/wait-for-it
-COPY bin/generate-cachet-appkey /opt/bin/generate-cachet-appkey
+COPY bin/generate-cachet-appkey /usr/local/bin/generate-cachet-appkey
 
 RUN echo "Install PHP Alpine packages ..."                                                                                      && \
     apk --update add curl tzdata bash tar gettext ssmtp mailx coreutils php7-intl php7-openssl php7-dba php7-sqlite3 php7-pear     \
@@ -79,6 +79,7 @@ RUN echo "Install PHP Alpine packages ..."                                      
     find /opt -type d -exec chmod ug+x {} \;                                                                                    && \
     find /etc/php7 -type d -exec chmod ug+x {} \;                                                                               && \
     chmod +x /usr/local/bin/apk-list                                                                                               \
+             /usr/local/bin/generate-cachet-appkey                                                                                 \
              /usr/local/bin/container-entrypoint                                                                                   \
              /usr/local/bin/run-queue-worker                                                                                       \
              /usr/local/bin/wait-for-it                                                                                            \

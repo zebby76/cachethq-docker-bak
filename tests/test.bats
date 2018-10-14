@@ -45,11 +45,6 @@ export BUILD_DATE=${VCS_REF:-$DEFAULT_BUILD_DATE}
   assert_equal $status 0
 }
 
-@test "[$TEST_FILE] Check for CachetHQ PHP-FPM Container generate-cachet-appkey command" {
-  run docker run --rm docker.io/zebby76/cachet-php:latest generate-cachet-appkey
-  assert_equal $status 0
-}
-
 @test "[$TEST_FILE] Check for CachetHQ Queue-Worker Container non existing command" {
   run docker run --rm docker.io/zebby76/cachet-queue-worker:latest not-exist
   assert_equal $status 127
