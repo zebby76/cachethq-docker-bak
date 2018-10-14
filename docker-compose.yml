@@ -37,8 +37,8 @@ services:
     networks:
       - default
     build:
-      context: .
-      dockerfile: box-php/Dockerfile
+      context: box-php/.
+      dockerfile: Dockerfile
       args:
         VERSION_ARG: ${CACHET_VERSION}
         BUILD_DATE_ARG: ${BUILD_DATE}
@@ -57,8 +57,8 @@ services:
     networks:
       - default
     build:
-      context: .
-      dockerfile: box-web/Dockerfile
+      context: box-web/.
+      dockerfile: Dockerfile
       args:
         VERSION_ARG: ${CACHET_VERSION}
         BUILD_DATE_ARG: ${BUILD_DATE}
@@ -89,8 +89,8 @@ services:
     networks:
       - default
     build:
-      context: .
-      dockerfile: box-queue-worker/Dockerfile
+      context: box-queue-worker/.
+      dockerfile: Dockerfile
       args:
         VERSION_ARG: ${CACHET_VERSION}
         BUILD_DATE_ARG: ${BUILD_DATE}

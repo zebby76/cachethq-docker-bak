@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# Full path of this script
+THIS=`readlink -f "${BASH_SOURCE[0]}"`
+
+# This directory path
+DIR=`dirname "${THIS}"`
+
+source "$DIR/func_fill_in_template_file_using_env"
+
+#
+# Setup SSMTP Configuration File
+#
+fill_in_template_file_using_env /etc/ssmtp/ssmtp.conf
+
+#
+# Setup Cachet Configuration File
+#
+export CACHET_APP_KEY=${CACHET_APP_KEY:-null}
+export CACHET_APP_ENV=${CACHET_APP_ENV:-production}
+export CACHET_APP_DEBUG=${CACHET_APP_DEBUG:-false}
+export CACHET_APP_URL=${CACHET_APP_URL:-http://localhost}
+export CACHET_APP_LOG=${CACHET_APP_LOG:-errorlog}
+export CACHET_APP_TIMEZONE=${CACHET_APP_TIMEZONE:-UTC}
+export CACHET_DB_DRIVER=${CACHET_DB_DRIVER:-pgsql}
+export CACHET_DB_HOSTNAME=${CACHET_DB_HOSTNAME:-postgres}
+export CACHET_DB_NAME=${CACHET_DB_NAME:-cachet}
+export CACHET_DB_PREFIX=${CACHET_DB_PREFIX}
+export CACHET_DB_USERNAME=${CACHET_DB_USERNAME:-postgres}
+export CACHET_DB_PASSWORD=${CACHET_DB_PASSWORD:-postgres}
+export CACHET_DB_PORT=${CACHET_DB_PORT:-5432}
+export CACHET_CACHE_DRIVER=${CACHET_CACHE_DRIVER:-apc}
+export CACHET_SESSION_DRIVER=${CACHET_SESSION_DRIVER:-cookie}
+export CACHET_SESSION_DOMAIN=${CACHET_SESSION_DOMAIN:-$CACHET_APP_URL}
+export CACHET_SESSION_SECURE_COOKIE=${CACHET_SESSION_SECURE_COOKIE:-false}
+export CACHET_QUEUE_DRIVER=${CACHET_QUEUE_DRIVER:-database}
+export CACHET_EMOJI=${CACHET_EMOJI:-false}
+export CACHET_BEACON=${CACHET_BEACON:-true}
+export CACHET_AUTO_TWITTER=${CACHET_AUTO_TWITTER:-true}
+export CACHET_MAIL_DRIVER=${CACHET_MAIL_DRIVER:-smtp}
+export CACHET_MAIL_HOST=${CACHET_MAIL_HOST:-localhost}
+export CACHET_MAIL_PORT=${CACHET_MAIL_PORT:-25}
+export CACHET_MAIL_USERNAME=${CACHET_MAIL_USERNAME:-null}
+export CACHET_MAIL_PASSWORD=${CACHET_MAIL_PASSWORD:-null}
+export CACHET_MAIL_ADDRESS=${CACHET_MAIL_ADDRESS:-null}
+export CACHET_MAIL_NAME=${CACHET_MAIL_NAME:-null}
+export CACHET_MAIL_ENCRYPTION=${CACHET_MAIL_ENCRYPTION:-null}
+export CACHET_REDIS_HOST=${CACHET_REDIS_HOST:-null}
+export CACHET_REDIS_DATABASE=${CACHET_REDIS_DATABASE:-null}
+export CACHET_REDIS_PORT=${CACHET_REDIS_PORT:-null}
+export CACHET_REDIS_PASSWORD=${CACHET_REDIS_PASSWORD:-null}
+export CACHET_GITHUB_TOKEN=${CACHET_GITHUB_TOKEN:-null}
+export CACHET_NEXMO_KEY=${CACHET_NEXMO_KEY:-null}
+export CACHET_NEXMO_SECRET=${CACHET_NEXMO_SECRET:-null}
+export CACHET_NEXMO_SMS_FROM=${NEXMO_SMS_FROM:-Cachet}
+
+fill_in_template_file_using_env /opt/src/cachet/.env
+chmod 750 /opt/src/cachet/.env
+
+rm -Rf /opt/src/cachet/bootstrap/cache/*
+
+set -eu
+cmd="$1"; shift
+exec $cmd "$@"
