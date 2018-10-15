@@ -71,6 +71,27 @@ RUN echo "Install PHP Alpine packages ..."                                      
     rm -rf /var/cache/apk/*                                                                                                     && \
     echo "Add non-privileged user ..."                                                                                          && \
     adduser -D -u 1001 -g default -s /sbin/nologin default                                                                      && \
+    echo "Download and install Composer ..."                                                                                    && \
+    curl -sSfLk https://getcomposer.org/installer -o /tmp/composer-setup.php                                                    && \
+    curl -sSfLk https://composer.github.io/installer.sig -o /tmp/composer-setup.sig                                             && \
+    COMPOSER_INSTALLER_SHA384SUM=$(cat /tmp/composer-setup.sig)                                                                 && \
+    echo "$COMPOSER_INSTALLER_SHA384SUM /tmp/composer-setup.php" | sha384sum -c                                                 && \
+    php /tmp/composer-setup.php --disable-tls --install-dir=/usr/local/bin                                                      && \
+    rm /tmp/composer-setup.php /tmp/composer-setup.sig                                                                          && \
+    ln -s /usr/local/bin/composer.phar /usr/local/bin/composer                                                                  && \
+    chmod +x /usr/local/bin/composer.phar /usr/local/bin/composer                                                               && \
+    mkdir /home/default/.composer                                                                                               && \
+    echo "Download and install CachetHQ ..."                                                                                    && \
+    mkdir -p /opt/src/cachet                                                                                                    && \
+    curl -sSfLk ${CACHET_DOWNLOAD_URL}/v${CACHET_VERSION}.tar.gz                                                                 | \
+    tar -xzC /opt/src/cachet --strip-components=1                                                                               && \
+    cd /opt/src/cachet                                                                                                          && \
+    composer global require "hirak/prestissimo:^0.3"                                                                            && \
+    composer -vvvv install --no-interaction --no-suggest --no-dev --working-dir /opt/src/cachet -o                              && \
+    rm -rf /opt/src/cachet/bootstrap/cache/*                                                                                    && \
+    chown -Rf 1001:0 /opt/src/cachet                                                                                            && \
+    chmod -R ug+rw /opt/src/cachet                                                                                              && \
+    find /opt/src/cachet -type d -exec chmod ug+x {} \;                                                                         && \
     echo "Setup permissions on filesystem for non-privileged user ..."                                                          && \
     mkdir -p /opt/bin /opt/etc                                                                                                  && \
     chown -Rf 1001:0 /opt /etc/ssmtp /etc/php7                                                                                  && \
